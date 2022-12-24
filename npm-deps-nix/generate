@@ -1,0 +1,9 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p node2nix
+
+cd $(dirname $(realpath $0))
+
+cp "../lib/WeBWorK/htdocs/package.json" .
+cp "../lib/WeBWorK/htdocs/package-lock.json" .
+
+node2nix --nodejs-16 --input package.json --lock package-lock.json
