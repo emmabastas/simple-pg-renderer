@@ -38,23 +38,6 @@ our $UNIT_TESTS_ON = 0;
 #our @path_list;
 
 ##################################################
-# create log files :: expendable
-##################################################
-
-my $path_to_log_file = 'logs/standalone_results.log';
-
-eval {    # attempt to create log file
-    local (*FH);
-    open( FH, '>>:encoding(UTF-8)', $path_to_log_file )
-      or die "Can't open file $path_to_log_file for writing";
-    close(FH);
-};
-
-die
-"You must first create an output file at $path_to_log_file with permissions 777 "
-  unless -w $path_to_log_file;
-
-##################################################
 # define universal TO_JSON for JSON::XS unbless
 ##################################################
 
@@ -688,16 +671,8 @@ sub writeRenderLogEntry($$$) {
     $beginEnd =
       ( $beginEnd eq "begin" ) ? ">" : ( $beginEnd eq "end" ) ? "<" : "-";
 
-#writeLog($seed_ce, "render_timing", "$$ ".time." $beginEnd $function [$details]");
-    local *LOG;
-    if ( open LOG, ">>", $path_to_log_file ) {
-        print LOG "[", time2str( "%a %b %d %H:%M:%S %Y", time ),
-          "] $$ " . time . " $beginEnd $function [$details]\n";
-        close LOG;
-    }
-    else {
-        warn "failed to open $path_to_log_file for writing: $!";
-    }
+    print "[", time2str( "%a %b %d %H:%M:%S %Y", time ),
+      "] $$ " . time . " $beginEnd $function [$details]\n";
 }
 
 1;
