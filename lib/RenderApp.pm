@@ -135,6 +135,7 @@ sub startup {
 		$r->post('/render-api/sma')->to('IO#findNewVersion');
 		$r->post('/render-api/unique')->to('IO#findUniqueSeeds');
 		$r->post('/render-api/tags')->to('IO#setTags');
+		$r->get('/flashcard')->to('render#flashcard');
 	}
 
 	# pass all requests via ww2_files through to lib/WeBWorK/htdocs
