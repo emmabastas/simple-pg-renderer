@@ -150,7 +150,7 @@ sub startup {
           permissionLevel => 20,
           includeTags => 1,
           showComments => 1,
-          problemSeed => int(rand(1024)), # TODO Initialize with a random seed
+          problemSeed => time(),
           format => "json",
           outputFormat => "static",
           answersSubmitted => 1,
