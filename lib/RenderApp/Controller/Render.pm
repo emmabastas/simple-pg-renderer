@@ -321,6 +321,16 @@ async sub flashcard {
   #  $ww_return_hash->{renderedHTML} =~ s/JWTanswerURLstatus//;
   #}
 
+  my $str = $ww_return_hash->{renderedHTML};
+
+  $str =~ s/<head>/<head>\n<script defer src="webwork2_files\/js\/answerspoilers.js"><\/script>/;
+  $str =~ s/<h3>Results for this submission<\/h3>/<h3>Press any key to reveal the answers<\/h3>/;
+  $str =~ s/class="attemptResults"/class="attemptResults" style="display:none;"/;
+  $str =~ s/class="attemptResultsSummary"/class="attemptResultsSummary" style="display:none;"/;
+  $str =~ s/<p>You can earn partial credit on this problem.<\/p>/<p style="display:none;">You can earn partial credit on this problem.<\/p>/;
+
+  $ww_return_hash->{renderedHTML} = $str;
+
   $c->respond_to(
     html => { text => $ww_return_hash->{renderedHTML} },
     json => { json => $ww_return_hash }
