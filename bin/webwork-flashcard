@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+morbo "$(dirname "$0")/../lib/Main.pm"
