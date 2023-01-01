@@ -142,11 +142,14 @@ sub startup {
     $r->get('/flashcard/*problem' => async sub {
         my $c = shift;
 
+        my $problem_path = $c->stash("problem");
+        open my $fh, '<', $problem_path or die "error opening $problem_path: $!";
+        my $problem_contents = do { local $/; <$fh> };
+
         my %inputs = (
           permissionLevel => 20,
           includeTags => 1,
           showComments => 1,
-          sourceFilePath => $c->stash("problem"),
           problemSeed => int(rand(1024)), # TODO Initialize with a random seed
           format => "json",
           outputFormat => "static",
@@ -154,7 +157,13 @@ sub startup {
           showCorrectAnswers => "Show correct answers",
         );
 
-        my $problem = $c->newProblem({ log => $c->log, read_path => $inputs{sourceFilePath}, random_seed => $inputs{problemSeed} });
+        my $problem = RenderApp::Model::Problem->new({
+            log => $c->log,
+            problem_contents => $problem_contents,
+            read_path => $problem_path,
+            random_seed => $inputs{problemSeed},
+        });
+
         return $c->exception($problem->{_message}, status => $problem->{status}) unless $problem->success();
 
         $c->render_later;
