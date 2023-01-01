@@ -22,7 +22,7 @@ FormatRenderedProblem.pm
 
 =cut
 
-package RenderApp::Controller::FormatRenderedProblem;
+package FormatRenderedProblem;
 
 use lib "$WeBWorK::Constants::WEBWORK_DIRECTORY/lib";
 use lib "$WeBWorK::Constants::PG_DIRECTORY/lib";

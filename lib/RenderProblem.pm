@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-package RenderApp::Controller::RenderProblem;
+package RenderProblem;
 
 use Time::HiRes qw/time/;
 use Date::Format;
@@ -27,7 +27,7 @@ use Proc::ProcessTable;    # use for log memory use
 use WeBWorK::PG;           #webwork2 (use to set up environment)
 use WeBWorK::CourseEnvironment;
 use WeBWorK::Utils::Tags;
-use RenderApp::Controller::FormatRenderedProblem;
+use FormatRenderedProblem;
 
 use 5.10.0;
 $Carp::Verbose = 1;
@@ -268,7 +268,7 @@ sub process_problem {
     $inputs_ref->{displayMode} = $display_mode;
 
  	# my $encoded_source = encode_base64($source); # create encoding of source_file;
-    my $formatter = RenderApp::Controller::FormatRenderedProblem->new(
+    my $formatter = FormatRenderedProblem->new(
       return_object   => $return_object,
       encoded_source  => '', #encode_base64($source),
       sourceFilePath  => $file_path,

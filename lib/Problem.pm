@@ -1,4 +1,4 @@
-package RenderApp::Model::Problem;
+package Problem;
 
 use strict;
 use warnings;
@@ -8,7 +8,7 @@ use Mojo::IOLoop;
 use Mojo::JSON qw( encode_json );
 use Mojo::Base -async_await;
 use Time::HiRes qw( time );
-use RenderApp::Controller::RenderProblem;
+use RenderProblem;
 
 ##### Problem params: #####
 # = random_seed      (set randomization for rendering)
@@ -218,7 +218,7 @@ sub render {
     my $inputs_ref = shift;
     $self->{action} = 'render';
     my $renderPromise = Mojo::IOLoop->subprocess->run_p( sub {
-        return RenderApp::Controller::RenderProblem::process_pg_file( $self, $inputs_ref );
+        return RenderProblem::process_pg_file( $self, $inputs_ref );
     })->catch(sub {
         $self->{exception} = Mojo::Exception->new(shift)->trace;
         $self->{_error} = "500 Render failed: " . $self->{exception}->message;

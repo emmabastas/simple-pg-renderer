@@ -34,7 +34,7 @@ BEGIN {
 use lib "$main::dirname";
 print "home directory " . $main::dirname . "\n";
 
-use RenderApp::Model::Problem;
+use Problem;
 
 sub startup {
     my $self = shift;
@@ -60,7 +60,7 @@ sub startup {
           showCorrectAnswers => "Show correct answers",
         );
 
-        my $problem = RenderApp::Model::Problem->new({
+        my $problem = Problem->new({
             log => $c->log,
             problem_contents => $problem_contents,
             read_path => $problem_path,
