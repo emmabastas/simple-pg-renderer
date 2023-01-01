@@ -139,14 +139,14 @@ sub startup {
 		$r->post('/render-api/tags')->to('IO#setTags');
 	}
 
-    $r->get('/flashcard' => async sub {
+    $r->get('/flashcard/*problem' => async sub {
         my $c = shift;
 
         my %inputs = (
           permissionLevel => 20,
           includeTags => 1,
           showComments => 1,
-          sourceFilePath => "Library/LaTech/opes_Statics/Beams/half_circle_CL_D_01.pg",
+          sourceFilePath => $c->stash("problem"),
           problemSeed => int(rand(1024)), # TODO Initialize with a random seed
           format => "json",
           outputFormat => "static",
@@ -180,7 +180,7 @@ sub startup {
 
         my $str = $ww_return_hash->{renderedHTML};
 
-        $str =~ s/<head>/<head>\n<script defer src="webwork2_files\/js\/answerspoilers.js"><\/script>/;
+        $str =~ s/<head>/<head>\n<script defer src="\/webwork2_files\/js\/answerspoilers.js"><\/script>/;
         $str =~ s/<h3>Results for this submission<\/h3>/<h3>Press any key to reveal the answers<\/h3>/;
         $str =~ s/class="attemptResults"/class="attemptResults" style="display:none;"/;
         $str =~ s/class="attemptResultsSummary"/class="attemptResultsSummary" style="display:none;"/;
