@@ -1,5 +1,7 @@
 package RenderApp;
 use Mojo::Base 'Mojolicious';
+use Mojo::Base 'Mojolicious::Controller', -async_await;
+use Mojo::JSON qw(decode_json);
 
 BEGIN {
     use Mojo::File;
@@ -135,8 +137,61 @@ sub startup {
 		$r->post('/render-api/sma')->to('IO#findNewVersion');
 		$r->post('/render-api/unique')->to('IO#findUniqueSeeds');
 		$r->post('/render-api/tags')->to('IO#setTags');
-		$r->get('/flashcard')->to('render#flashcard');
 	}
+
+    $r->get('/flashcard' => async sub {
+        my $c = shift;
+
+        my %inputs = (
+          permissionLevel => 20,
+          includeTags => 1,
+          showComments => 1,
+          sourceFilePath => "Library/LaTech/opes_Statics/Beams/half_circle_CL_D_01.pg",
+          problemSeed => int(rand(1024)), # TODO Initialize with a random seed
+          format => "json",
+          outputFormat => "static",
+          answersSubmitted => 1,
+          showCorrectAnswers => "Show correct answers",
+        );
+
+        my $problem = $c->newProblem({ log => $c->log, read_path => $inputs{sourceFilePath}, random_seed => $inputs{problemSeed} });
+        return $c->exception($problem->{_message}, status => $problem->{status}) unless $problem->success();
+
+        $c->render_later;
+        my $ww_return_json = await $problem->render(\%inputs);
+
+        unless ($problem->success()) {
+          $c->log->warn($problem->{_message});
+          return $c->render(
+            json   => $problem->errport(),
+            status => $problem->{status}
+          );
+        }
+
+        my $ww_return_hash = decode_json($ww_return_json);
+        #my @output_errs = checkOutputs($ww_return_hash);
+        #if (@output_errs) {
+        #  my $err_log = "Output from rendering ".$inputs{sourceFilePath}." contained errors: {";
+        #  $err_log .= join "}, {", @output_errs;
+        #  $c->log->error($err_log."}");
+        #}
+        #
+        #$ww_return_hash->{debug}->{render_warn} = [@output_errs];
+
+        my $str = $ww_return_hash->{renderedHTML};
+
+        $str =~ s/<head>/<head>\n<script defer src="webwork2_files\/js\/answerspoilers.js"><\/script>/;
+        $str =~ s/<h3>Results for this submission<\/h3>/<h3>Press any key to reveal the answers<\/h3>/;
+        $str =~ s/class="attemptResults"/class="attemptResults" style="display:none;"/;
+        $str =~ s/class="attemptResultsSummary"/class="attemptResultsSummary" style="display:none;"/;
+        $str =~ s/<p>You can earn partial credit on this problem.<\/p>/<p style="display:none;">You can earn partial credit on this problem.<\/p>/;
+
+        $ww_return_hash->{renderedHTML} = $str;
+
+        $c->respond_to(
+          html => { text => $ww_return_hash->{renderedHTML} },
+        );
+    });
 
 	# pass all requests via ww2_files through to lib/WeBWorK/htdocs
 	my $staticPath = $WeBWorK::Constants::WEBWORK_DIRECTORY."/htdocs/";
