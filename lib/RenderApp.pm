@@ -26,9 +26,9 @@ BEGIN {
         die "Cannot read webwork pg directory at $WeBWorK::Constants::PG_DIRECTORY";
     }
 
-	$ENV{MOJO_CONFIG} = (-r "$ENV{RENDER_ROOT}/render_app.conf") ? "$ENV{RENDER_ROOT}/render_app.conf" : "$ENV{RENDER_ROOT}/render_app.conf.dist";
-	# $ENV{MOJO_MODE} = 'production';
-	# $ENV{MOJO_LOG_LEVEL} = 'debug';
+    $ENV{MOJO_CONFIG} = (-r "$ENV{RENDER_ROOT}/render_app.conf") ? "$ENV{RENDER_ROOT}/render_app.conf" : "$ENV{RENDER_ROOT}/render_app.conf.dist";
+    # $ENV{MOJO_MODE} = 'production';
+    # $ENV{MOJO_LOG_LEVEL} = 'debug';
 }
 
 use lib "$main::dirname";
@@ -96,26 +96,26 @@ sub startup {
         );
     });
 
-	# pass all requests via ww2_files through to lib/WeBWorK/htdocs
-	my $staticPath = $WeBWorK::Constants::WEBWORK_DIRECTORY."/htdocs/";
-	$r->any('/webwork2_files/*static' => sub {
-		my $c = shift;
-		$c->reply->file($staticPath.$c->stash('static'));
-	});
+    # pass all requests via ww2_files through to lib/WeBWorK/htdocs
+    my $staticPath = $WeBWorK::Constants::WEBWORK_DIRECTORY."/htdocs/";
+    $r->any('/webwork2_files/*static' => sub {
+        my $c = shift;
+        $c->reply->file($staticPath.$c->stash('static'));
+    });
 
-	# any other requests fall through
-	$r->any('/*fail' => sub {
-		my $c = shift;
-		my $report = $c->stash('fail')."\nCOOKIE:";
-		for my $cookie (@{$c->req->cookies}) {
-			$report .= "\n".$cookie->to_string;
-		}
-		$report .= "\nFORM DATA:";
-		foreach my $k (@{$c->req->params->names}) {
-			$report .= "\n$k = ".join ', ', @{$c->req->params->every_param($k)};
-		}
-		$c->log->fatal($report);
-		$c->rendered(404)});
+    # any other requests fall through
+    $r->any('/*fail' => sub {
+        my $c = shift;
+        my $report = $c->stash('fail')."\nCOOKIE:";
+        for my $cookie (@{$c->req->cookies}) {
+            $report .= "\n".$cookie->to_string;
+        }
+        $report .= "\nFORM DATA:";
+        foreach my $k (@{$c->req->params->names}) {
+            $report .= "\n$k = ".join ', ', @{$c->req->params->every_param($k)};
+        }
+        $c->log->fatal($report);
+        $c->rendered(404)});
 }
 
 1;
